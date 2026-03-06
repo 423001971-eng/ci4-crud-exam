@@ -1,0 +1,37 @@
+#--------------------------------------------------------------------
+# ENVIRONMENT
+#--------------------------------------------------------------------
+
+CI_ENVIRONMENT = development
+
+#--------------------------------------------------------------------
+# APP
+#--------------------------------------------------------------------
+
+app.baseURL = 'http://localhost:8080/ci4-crud-exam/public'
+app.forceGlobalSecureRequests = false
+
+#--------------------------------------------------------------------
+# DATABASE
+#--------------------------------------------------------------------
+
+database.default.hostname = localhost
+database.default.database = ci4_exam_db      ; <-- make sure this DB exists in phpMyAdmin
+database.default.username = root           ; XAMPP default
+database.default.password =                ; XAMPP default (empty)
+database.default.DBDriver = MySQLi
+database.default.DBPrefix =                ; optional, usually empty
+database.default.port = 3s306
+database.default.DBDebug = true            ; show errors in dev
+database.default.charset = utf8
+database.default.DBCollat = utf8_general_ci
+database.default.pConnect = false
+database.default.strictOn = false
+database.default.failover = []
+
+#--------------------------------------------------------------------
+# SESSION
+#--------------------------------------------------------------------
+
+session.driver = 'CodeIgniter\Session\Handlers\FileHandler'
+session.savePath = writable/session       ; make sure this folder exists and is writable
