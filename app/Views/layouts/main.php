@@ -19,9 +19,12 @@
 
 <nav class="navbar sticky-top navbar-expand-lg mb-5">
     <div class="container">
-        <a class="navbar-brand fw-bold text-primary" href="<?= base_url('products') ?>">📦 Inventory<span class="text-dark">Pro</span></a>
+        <a class="navbar-brand fw-bold text-primary" href="<?= base_url('products') ?>">📦 My<span class="text-dark">Inventory</span></a>
+        
         <div class="ms-auto d-flex align-items-center">
             <?php if(session()->get('isLoggedIn')): ?>
+                <a class="nav-link me-3 text-primary fw-semibold" href="<?= base_url('profile') ?>">👤 My Profile</a>
+                
                 <span class="me-3 small text-muted">Hi, <strong><?= session()->get('user_name') ?></strong></span>
                 <a href="<?= base_url('logout') ?>" class="btn btn-sm btn-outline-danger">Logout</a>
             <?php endif; ?>

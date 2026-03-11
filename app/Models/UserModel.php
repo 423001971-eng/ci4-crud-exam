@@ -8,11 +8,10 @@ class UserModel extends Model
 {
     protected $table            = 'users';
     protected $primaryKey       = 'id';
-    
-    // THIS IS THE MISSING PART:
-    protected $allowedFields    = ['name', 'email', 'password']; 
+    protected $allowedFields    = ['name', 'email', 'password', 'student_id', 'course', 'year_level', 'section', 'phone', 'address', 'profile_image'];
 
-    // Optional: but good for your exam
-    protected $useTimestamps    = false;
-    protected $createdField     = 'created_at';
+    // FIX: Set this to false
+    protected $useTimestamps    = false; 
+    
+    // If you set it to true, you MUST have created_at and updated_at columns in your DB
 }

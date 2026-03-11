@@ -26,10 +26,10 @@
                 <?php foreach($products as $p): ?>
                 <tr>
                     <td class="ps-4">
-                        <div class="fw-semibold text-dark"><?= $p['title'] ?></div>
-                        <div class="small text-muted"><?= substr($p['description'], 0, 40) ?>...</div>
+                        <div class="fw-semibold text-dark"><?= esc($p['title']) ?></div>
+                        <div class="small text-muted"><?= esc(substr($p['description'], 0, 40)) ?>...</div>
                     </td>
-                    <td class="fw-medium text-dark">$<?= number_format($p['price'], 2) ?></td>
+                    <td class="fw-medium text-dark">₱<?= number_format($p['price'], 2) ?></td>
                     <td>
                         <?php if($p['stock'] > 10): ?>
                             <span class="badge rounded-pill bg-success-subtle text-success border border-success">In Stock (<?= $p['stock'] ?>)</span>
