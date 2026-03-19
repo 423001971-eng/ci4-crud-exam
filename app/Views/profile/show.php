@@ -6,13 +6,9 @@
         <div class="card-body p-5">
             <div class="row align-items-center">
                 <div class="col-md-4 text-center">
-                    <?php if (!empty($user['profile_image'])): ?>
-                        <img src="<?= base_url('uploads/profiles/' . esc($user['profile_image'])) ?>" class="rounded-circle shadow" style="width: 180px; height: 180px; object-fit: cover;">
-                    <?php else: ?>
-                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center shadow" style="width: 180px; height: 180px;">
-                            <span class="text-muted">No Photo</span>
-                        </div>
-                    <?php endif; ?>
+                    <img src="<?= base_url('uploads/profiles/' . esc($user['profile_image'] ?? 'default-avatar.png')) ?>" 
+                         class="rounded-circle shadow border border-primary p-1" 
+                         style="width: 180px; height: 180px; object-fit: cover;">
                 </div>
                 <div class="col-md-8">
                     <h2 class="fw-bold mb-1"><?= esc($user['name']) ?></h2>

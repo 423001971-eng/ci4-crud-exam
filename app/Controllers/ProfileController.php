@@ -14,49 +14,48 @@ class ProfileController extends BaseController
         $this->userModel = new UserModel();
     }
 
-    // 4.1 — Display Profile
     public function show()
     {
-        // 1. Get the ID from the session (Matches what we set in AuthController)
-        $userId = session()->get('id') ?? session()->get('user_id'); 
+        //Get the ID from the session 
+        $userId = session()->get('user')['id'] ?? null; 
 
-        // 2. Security Check: If no ID, the user isn't logged in
+        //Security Check: If no ID, the user isn't logged in
         if (!$userId) {
             return redirect()->to('/login')->with('error', 'Please login to access your profile.');
         }
 
-        // 3. Fetch the specific user from the database
+        //Fetch the specific user from the database
         $user = $this->userModel->find($userId);
 
-        // 4. Extra Safety: If user was deleted from DB but session still exists
+        //Extra Safety: If user was deleted from DB but session still exists
         if (!$user) {
             session()->destroy();
             return redirect()->to('/login');
         }
 
-        // 5. Load the View and pass the $user data
+        //Load the View and pass the $user data
         return view('profile/show', ['user' => $user]);
     }
 
-    // 4.2 — Show Edit Form
+    // Show Edit Form
     public function edit()
     {
-        $userId = session()->get('id') ?? session()->get('user_id');
+        $userId = session()->get('user')['id'] ?? null;
         if (!$userId) return redirect()->to('/login');
 
         $user = $this->userModel->find($userId);
         return view('profile/edit', ['user' => $user]);
     }
 
-    // 4.3 — Process Form Submission
+    // The Process Form Submission
     public function update()
     {
-        $userId = session()->get('id') ?? session()->get('user_id');
+        $userId = session()->get('user')['id'] ?? null;
         if (!$userId) return redirect()->to('/login');
 
         $user = $this->userModel->find($userId);
 
-        // 1. Validation Rules
+        // Validation Rules
         $rules = [
             'name'       => 'required|min_length[3]',
             'email'      => "required|valid_email|is_unique[users.email,id,{$userId}]",
@@ -88,7 +87,7 @@ class ProfileController extends BaseController
             'address'    => $this->request->getPost('address'),
         ];
 
-        // 2. Handle Image Upload Execution
+        //Handle Image Upload Execution
         if ($file && $file->isValid() && !$file->hasMoved()) {
             $uploadPath = FCPATH . 'uploads/profiles/';
             
@@ -96,7 +95,7 @@ class ProfileController extends BaseController
                 mkdir($uploadPath, 0755, true);
             }
 
-            // Delete old image if it exists
+            //Delete old image if it exists
             if (!empty($user['profile_image']) && file_exists($uploadPath . $user['profile_image'])) {
                 @unlink($uploadPath . $user['profile_image']);
             }
@@ -106,11 +105,16 @@ class ProfileController extends BaseController
             $updateData['profile_image'] = $newName;
         }
 
-        // 3. Update Database
+        // Update Database
         $this->userModel->update($userId, $updateData);
 
-        // 4. Update Session name so the Dashboard greeting changes immediately
-        session()->set('user_name', $updateData['name']);
+        //Update Session name and profile image so the Dashboard greeting changes immediately
+        $userSession = session()->get('user');
+        $userSession['name'] = $updateData['name'];
+        if (isset($updateData['profile_image'])) {
+            $userSession['profile_image'] = $updateData['profile_image'];
+        }
+        session()->set('user', $userSession);
 
         return redirect()->to('/profile')->with('success', 'Profile updated successfully!');
     }

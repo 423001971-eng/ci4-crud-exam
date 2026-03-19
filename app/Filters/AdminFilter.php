@@ -6,12 +6,13 @@ use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 
-class AuthFilter implements FilterInterface
+class AdminFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        if (! session()->has('user')) {
-            return redirect()->to('/login');
+        $role = strtolower(session('user')['role'] ?? '');
+        if ($role !== 'admin') {
+            return redirect()->to('/unauthorized');
         }
     }
 

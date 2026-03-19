@@ -40,6 +40,10 @@ class Filters extends BaseFilters
         'performance'   => PerformanceMetrics::class,
         // Add this line exactly like this:
         'auth'          => \App\Filters\AuthFilter::class, 
+        'student'       => \App\Filters\StudentFilter::class,
+        'teacher'       => \App\Filters\TeacherFilter::class,
+        'admin'         => \App\Filters\AdminFilter::class,
+        'coordinator'   => \App\Filters\CoordinatorFilter::class,
     ];
 
     /**

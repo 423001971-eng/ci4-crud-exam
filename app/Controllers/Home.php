@@ -7,7 +7,7 @@ class Home extends BaseController
     public function index()
     {
         // Check if session exists (extra safety)
-        if (!session()->get('id')) {
+        if (!session()->get('user')['id']) {
             return redirect()->to('/login');
         }
 

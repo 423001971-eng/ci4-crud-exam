@@ -2,40 +2,60 @@
 
 use CodeIgniter\Router\RouteCollection;
 
-/**
- * @var RouteCollection $routes
- */
+/** @var RouteCollection $routes */
 
 // --- PUBLIC ROUTES ---
-// 1. Change the landing page to redirect to login if not authenticated
-$routes->get('/', 'AuthController::login'); 
-
-// Auth Routes
-$routes->get('register', 'AuthController::register');
-$routes->post('register/store', 'AuthController::store');
+$routes->get('/', 'AuthController::login');
 $routes->get('login', 'AuthController::login');
-$routes->post('login/auth', 'AuthController::authenticate');
+$routes->post('login/auth', 'AuthController::loginAuth');
+$routes->get('register', 'AuthController::register');
+$routes->post('register/store', 'AuthController::registerSave');
 $routes->get('logout', 'AuthController::logout');
+$routes->get('unauthorized', 'AuthController::unauthorized');
 
-// --- PROTECTED ROUTES (Requires Login) ---
-$routes->group('', ['filter' => 'auth'], function($routes) {
+// --- EVERYONE (Auth passes, they see it) ---
+$routes->group('', ['filter' => ['auth']], function ($routes) {
+    $routes->get('dashboard',                  'Home::index');
+});
+
+// --- STUDENT ONLY (Profile access) ---
+$routes->group('', ['filter' => ['auth', 'student']], function ($routes) {
+    $routes->get('profile',                    'ProfileController::show');
+    $routes->get('profile/edit',               'ProfileController::edit');
+    $routes->post('profile/update',            'ProfileController::update');
+    $routes->get('student/dashboard',          'Home::index'); 
+});
+
+// --- TEACHER & ADMIN (Student lists and management) ---
+$routes->group('', ['filter' => ['auth', 'teacher']], function ($routes) {
+    $routes->get('students',                    'RecordController::index');
+    $routes->get('students/show/(:num)',        'RecordController::show/$1');
+    $routes->get('students/create',             'RecordController::create');
+    $routes->post('students/store',             'RecordController::store');
+    $routes->get('students/edit/(:num)',        'RecordController::edit/$1');
+    $routes->post('students/update/(:num)',     'RecordController::update/$1');
+    $routes->get('students/delete/(:num)',      'RecordController::delete/$1');
+});
+
+// --- COORDINATOR ONLY ---
+$routes->group('coordinator', ['filter' => ['auth', 'coordinator']], function ($routes) {
+    $routes->get('dashboard', 'CoordinatorController::index');
+    $routes->get('profile', 'CoordinatorController::profile');
+    $routes->get('files', 'CoordinatorController::files');
+});
+// --- ADMIN ONLY ---
+$routes->group('admin', ['filter' => ['auth', 'admin'], 'namespace' => 'App\Controllers\Admin'], function ($routes) {
+    $routes->get('settings',             '..\RecordController::index'); 
     
-    // 2. This is now your actual Dashboard
-    $routes->get('dashboard', 'Home::index');
+    // Role Management
+    $routes->get('roles',                'RoleController::index');
+    $routes->get('roles/create',         'RoleController::create');
+    $routes->post('roles/store',         'RoleController::store');
+    $routes->get('roles/edit/(:num)',    'RoleController::edit/$1');
+    $routes->post('roles/update/(:num)', 'RoleController::update/$1');
+    $routes->get('roles/delete/(:num)',  'RoleController::delete/$1');
 
-    // Profile Routes
-    $routes->get('profile',         'ProfileController::show');
-    $routes->get('profile/edit',    'ProfileController::edit');
-    $routes->post('profile/update', 'ProfileController::update');
-
-    // Product Routes
-    $routes->group('products', function($routes) {
-        $routes->get('/',               'ProductController::index');
-        $routes->get('show/(:num)',     'ProductController::show/$1'); 
-        $routes->get('create',          'ProductController::create');
-        $routes->post('store',          'ProductController::store');
-        $routes->get('edit/(:num)',     'ProductController::edit/$1');
-        $routes->post('update/(:num)',  'ProductController::update/$1');
-        $routes->get('delete/(:num)',   'ProductController::delete/$1');
-    });
+    // User Management
+    $routes->get('users',                'UserAdminController::index');
+    $routes->post('users/assignRole/(:num)', 'UserAdminController::assignRole/$1');
 });
