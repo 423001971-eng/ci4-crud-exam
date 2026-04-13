@@ -59,3 +59,27 @@ $routes->group('admin', ['filter' => ['auth', 'admin'], 'namespace' => 'App\Cont
     $routes->get('users',                'UserAdminController::index');
     $routes->post('users/assignRole/(:num)', 'UserAdminController::assignRole/$1');
 });
+
+// ════════════════════════════════════════════════════════════
+//  API v1 — token-authenticated JSON endpoints
+//
+//  Public:    POST /api/v1/auth/token  (issue token)
+//  Protected: DELETE /api/v1/auth/token, GET /api/v1/students(/{id})
+//
+//  Header: Authorization: Bearer <token>
+// ════════════════════════════════════════════════════════════
+
+// Issue token — no auth filter needed here
+$routes->post('api/v1/auth/token', 'Api\AuthController::issueToken');
+
+// Protected API routes
+$routes->group('api/v1', ['filter' => 'api_auth'], function ($routes) {
+
+    // Auth
+    $routes->delete('auth/token', 'Api\AuthController::revokeToken');
+
+    // Students resource
+    $routes->get('students',       'Api\StudentsController::index');
+    $routes->get('students/(:num)', 'Api\StudentsController::show/$1');
+
+});
