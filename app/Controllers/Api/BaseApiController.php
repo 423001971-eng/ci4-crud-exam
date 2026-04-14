@@ -2,65 +2,79 @@
 
 namespace App\Controllers\Api;
 
-use CodeIgniter\Controller;
+use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\RESTful\BaseResource;
+use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 /**
- * BaseApiController
- *
- * All API controllers extend this class.
- * Provides JSON response helpers and a reference to the authenticated user.
+ * Base controller for API controllers
+ * 
+ * Provides JSON response helpers and exposes $apiUser from ApiAuthFilter
  */
-class BaseApiController extends Controller
+class BaseApiController extends BaseResource
 {
-    /** @var array|null  Populated by ApiAuthFilter on protected routes */
-    protected ?array $apiUser = null;
+    use ResponseTrait;
 
-    public function initController(
-        \CodeIgniter\HTTP\RequestInterface $request,
-        \CodeIgniter\HTTP\ResponseInterface $response,
-        \Psr\Log\LoggerInterface $logger
-    ): void {
+    /**
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
+     * @param LoggerInterface   $logger
+     */
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger): void
+    {
         parent::initController($request, $response, $logger);
-
-        // Pull the user that ApiAuthFilter attached to the request (may be null on public routes)
-        $this->apiUser = $request->apiUser ?? null;
+        $this->apiUser = $request->getGlobal('apiUser') ?? null;
     }
 
-    // ── Response helpers ──────────────────────────────────────────────────────
+    /**
+     * API user set by ApiAuthFilter
+     */
+    public ?array $apiUser = null;
 
-    protected function ok(mixed $data = null, string $message = 'OK'): ResponseInterface
+    /**
+     * OK (200) JSON response
+     */
+    protected function ok($data = null, string $message = 'OK'): ResponseInterface
     {
-        return $this->response
-            ->setStatusCode(200)
-            ->setJSON(['status' => 'success', 'message' => $message, 'data' => $data]);
+        $payload = ['status' => 'success'];
+        if ($message) $payload['message'] = $message;
+        if ($data !== null) $payload['data'] = $data;
+
+        return $this->respond($payload);
     }
 
-    protected function created(mixed $data = null, string $message = 'Created'): ResponseInterface
+    /**
+     * Created (201) JSON response
+     */
+    protected function created($data, string $message = 'Created'): ResponseInterface
     {
-        return $this->response
-            ->setStatusCode(201)
-            ->setJSON(['status' => 'success', 'message' => $message, 'data' => $data]);
+        $payload = ['status' => 'success', 'message' => $message, 'data' => $data];
+        return $this->respondCreated($payload);
     }
 
-    protected function notFound(string $message = 'Not found'): ResponseInterface
+    /**
+     * Bad Request (400) JSON response
+     */
+    protected function badRequest(string $message = 'Bad Request'): ResponseInterface
     {
-        return $this->response
-            ->setStatusCode(404)
-            ->setJSON(['status' => 'error', 'message' => $message]);
+        return $this->failValidationErrors([$message]);
     }
 
-    protected function badRequest(string $message = 'Bad request', mixed $errors = null): ResponseInterface
-    {
-        return $this->response
-            ->setStatusCode(400)
-            ->setJSON(['status' => 'error', 'message' => $message, 'errors' => $errors]);
-    }
-
+    /**
+     * Forbidden (403) JSON response
+     */
     protected function forbidden(string $message = 'Forbidden'): ResponseInterface
     {
-        return $this->response
-            ->setStatusCode(403)
-            ->setJSON(['status' => 'error', 'message' => $message]);
+        return $this->failForbidden($message);
+    }
+
+    /**
+     * Not Found (404) JSON response
+     */
+    protected function notFound(string $message = 'Not Found'): ResponseInterface
+    {
+        return $this->failNotFound($message);
     }
 }

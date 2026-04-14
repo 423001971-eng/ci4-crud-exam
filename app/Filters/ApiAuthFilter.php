@@ -56,8 +56,8 @@ class ApiAuthFilter implements FilterInterface
                 ->setJSON(['status' => 'error', 'message' => 'Token has expired.']);
         }
 
-        // Attach user data to request so controllers can read it
-        $request->apiUser = $row;
+        // Attach user data to request globals so controllers can read it
+        $request->setGlobal('apiUser', $row);
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
