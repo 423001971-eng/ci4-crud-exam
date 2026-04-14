@@ -44,6 +44,7 @@ class Filters extends BaseFilters
         'teacher'       => \App\Filters\TeacherFilter::class,
         'admin'         => \App\Filters\AdminFilter::class,
         'coordinator'   => \App\Filters\CoordinatorFilter::class,
+        'api_auth'      => \App\Filters\ApiAuthFilter::class,
     ];
 
     /**
