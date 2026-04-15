@@ -10,17 +10,28 @@ use CodeIgniter\HTTP\ResponseInterface;
 /**
  * Simple API Authentication Controller
  * 
- * POST /api/v1/auth/token - Get token with email/password
- * DELETE /api/v1/auth/token - Revoke current token
- * 
- * Uses basic JSON responses. Student-made simple version!
+ * POST /api/login - Simplified login (sample token for exam)
+ * POST /api/v1/auth/token - Full auth token
+ * DELETE /api/v1/auth/token - Revoke token
  */
-
-// Extend base Controller for simplicity (no fancy BaseApiController)
 class AuthController extends Controller
 {
     // Token expires in 24 hours
     private const TOKEN_EXPIRE_HOURS = 24;
+
+    /**
+     * Simplified login endpoint for exam - returns sample token
+     */
+    public function login()
+    {
+        // This is a simplified version for your exam
+        $data = [
+            'status' => 200,
+            'token'  => 'sample_token_12345', // In a real app, this is generated
+            'message' => 'Login Successful'
+        ];
+        return $this->response->setJSON($data);
+    }
 
     /**
      * Create new auth token

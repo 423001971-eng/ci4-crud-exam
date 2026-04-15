@@ -6,25 +6,21 @@ use CodeIgniter\Model;
 
 class UserModel extends Model
 {
-    protected $table            = 'users';
-    protected $primaryKey       = 'id';
-    protected $allowedFields    = [
+    protected $table = 'users';
+    protected $primaryKey = 'id';
+    protected $allowedFields = [
         'name', 'email', 'password', 'role_id',
         'student_id', 'course', 'year_level', 
-        'section', 'phone', 'address', 'profile_image'];
+        'section', 'phone', 'address', 'profile_image'
+    ];
 
-    protected $useTimestamps    = false; 
-
-    // ── Custom methods ────────────────────────────────────────
+    protected $useTimestamps = false;
 
     public function findByEmail(string $email): ?array
     {
         return $this->where('email', $email)->first();
     }
 
-    /**
-     * Return all users with the 'student' role.
-     */
     public function getStudents(): array
     {
         return $this->db->table('users u')
@@ -37,10 +33,6 @@ class UserModel extends Model
             ->getResultArray();
     }
 
-    /**
-     * Return a single student's full profile.
-     * Returns null if not found or not a student.
-     */
     public function getStudentById(int $id): ?array
     {
         return $this->db->table('users u')
@@ -53,3 +45,4 @@ class UserModel extends Model
             ->getRowArray() ?: null;
     }
 }
+
