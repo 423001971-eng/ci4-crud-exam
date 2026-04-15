@@ -19,6 +19,10 @@ use CodeIgniter\HTTP\ResponseInterface;
  */
 class ApiAuthFilter implements FilterInterface
 {
+    /**
+     * @param \CodeIgniter\\HTTP\\RequestInterface $request
+     * @param mixed $arguments
+     */
     public function before(RequestInterface $request, $arguments = null)
     {
         $authHeader = $request->getHeaderLine('Authorization');
@@ -57,7 +61,8 @@ class ApiAuthFilter implements FilterInterface
         }
 
         // Attach user data to request globals so controllers can read it
-$request->setAttribute('apiUser', $row);
+        $GLOBALS['apiUser'] = $row;
+    
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
