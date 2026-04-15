@@ -18,14 +18,14 @@ class BaseApiController extends BaseResource
     use ResponseTrait;
 
     /**
-     * @param RequestInterface  $request
+     * @param \CodeIgniter\\HTTP\\RequestInterface $request
      * @param ResponseInterface $response
-     * @param LoggerInterface   $logger
+     * @param LoggerInterface $logger
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger): void
     {
         parent::initController($request, $response, $logger);
-$this->apiUser = $request->getAttribute('apiUser') ?? null;
+        $this->apiUser = $GLOBALS['apiUser'] ?? null;
     }
 
     /**
