@@ -8,12 +8,12 @@ class UserModel extends Model
 {
     protected $table            = 'users';
     protected $primaryKey       = 'id';
-    protected $allowedFields    = [
-        'name', 'email', 'password', 'role_id',
-        'student_id', 'course', 'year_level', 
-        'section', 'phone', 'address', 'profile_image'];
+    protected $useAutoIncrement = true;
+    protected $returnType       = 'array';
+    protected $allowedFields    = ['username', 'email', 'password']; // Add your actual columns here
 
-    protected $useTimestamps    = false; 
+    // Dates
+    protected $useTimestamps = true;
 
     // ── Custom methods ────────────────────────────────────────
 
