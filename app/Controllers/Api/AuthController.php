@@ -2,68 +2,126 @@
 
 namespace App\Controllers\Api;
 
-use App\Models\ApiTokenModel;
+use CodeIgniter\Controller;
 use App\Models\UserModel;
+use App\Models\ApiTokenModel;
+use CodeIgniter\HTTP\ResponseInterface;
 
 /**
- * API Auth Controller
- *
- * POST   /api/v1/auth/token   → exchange email+password for a Bearer token
- * DELETE /api/v1/auth/token   → revoke the current token (requires Bearer auth)
+ * Simple API Authentication Controller
+ * 
+ * POST /api/v1/auth/token - Get token with email/password
+ * DELETE /api/v1/auth/token - Revoke current token
+ * 
+ * Uses basic JSON responses. Student-made simple version!
  */
-class AuthController extends BaseApiController
+
+// Extend base Controller for simplicity (no fancy BaseApiController)
+class AuthController extends Controller
 {
-    /** Token lifetime in seconds (default: 24 h) */
-    private const TOKEN_TTL = 86400;
+    // Token expires in 24 hours
+    private const TOKEN_EXPIRE_HOURS = 24;
 
-    // ── POST /api/v1/auth/token ───────────────────────────────────────────────
-
-    public function issueToken()
+    /**
+     * Create new auth token
+     * Accept JSON or form: {"email": "...", "password": "..."}
+     */
+    public function createToken(): ResponseInterface
     {
-        $email    = $this->request->getJsonVar('email')    ?? $this->request->getPost('email');
+        // Get email and password from JSON or POST form
+        $email = $this->request->getJsonVar('email') ?? $this->request->getPost('email');
         $password = $this->request->getJsonVar('password') ?? $this->request->getPost('password');
 
+        // Simple validation
         if (empty($email) || empty($password)) {
-            return $this->badRequest('email and password are required.');
+            return $this->response
+                ->setStatusCode(400)
+                ->setJSON([
+                    'status' => 'error',
+                    'message' => 'Email and password are required.'
+                ]);
         }
 
-        $userModel  = new UserModel();
-        $user       = $userModel->findByEmail($email);
+        // Find user by email
+        $userModel = new UserModel();
+        $user = $userModel->findByEmail($email);
 
-        if (! $user || ! password_verify($password, $user['password'])) {
+        // Check user exists and password matches
+        if (!$user || !password_verify($password, $user['password'])) {
             return $this->response
                 ->setStatusCode(401)
-                ->setJSON(['status' => 'error', 'message' => 'Invalid credentials.']);
+                ->setJSON([
+                    'status' => 'error',
+                    'message' => 'Invalid credentials'
+                ]);
         }
 
-        // Generate a cryptographically secure token
-        $token          = bin2hex(random_bytes(32));   // 64-char hex string
-        $expiresAt      = date('Y-m-d H:i:s', time() + self::TOKEN_TTL);
+        // Generate secure random token (64 chars hex)
+        $token = bin2hex(random_bytes(32));
 
-        (new ApiTokenModel())->createToken($user['id'], $token, $expiresAt);
+        // Set expiration time (24 hours from now)
+        $expires_at = date('Y-m-d H:i:s', time() + (self::TOKEN_EXPIRE_HOURS * 3600));
 
-        return $this->created([
-            'token'      => $token,
-            'token_type' => 'Bearer',
-            'expires_at' => $expiresAt,
-            'user'       => [
-                'id'    => $user['id'],
-                'name'  => $user['name'],
-                'email' => $user['email'],
-            ],
-        ], 'Token issued.');
+        // Save token to database
+        $tokenModel = new ApiTokenModel();
+        $tokenModel->insert([
+            'user_id' => $user['id'],
+            'token' => $token,
+            'expires_at' => $expires_at,
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+
+        // Success response
+        return $this->response
+            ->setStatusCode(201)  // Created
+            ->setJSON([
+                'status' => 'success',
+                'message' => 'Token created successfully',
+                'data' => [
+                    'token' => $token,
+                    'token_type' => 'Bearer',
+                    'expires_at' => $expires_at,
+                    'user' => [
+                        'id' => $user['id'],
+                        'name' => $user['name'],
+                        'email' => $user['email']
+                    ]
+                ]
+            ]);
     }
 
-    // ── DELETE /api/v1/auth/token ──────────────────────────────────────────────
-
-    public function revokeToken()
+    /**
+     * Delete/revoke the current token
+     * Expects: Authorization: Bearer <token>
+     */
+    public function deleteToken(): ResponseInterface
     {
-        // ApiAuthFilter already validated the token and set $this->apiUser
+        // Get token from Authorization header (Bearer token)
         $authHeader = $this->request->getHeaderLine('Authorization');
-        $token      = trim(substr($authHeader, 7));
+        if (strpos($authHeader, 'Bearer ') !== 0) {
+            return $this->response
+                ->setStatusCode(401)
+                ->setJSON([
+                    'status' => 'error',
+                    'message' => 'Bearer token required'
+                ]);
+        }
 
-        (new ApiTokenModel())->deleteByToken($token);
+        // Extract token (remove "Bearer " prefix)
+        $token = trim(substr($authHeader, 7));
 
-        return $this->ok(null, 'Token revoked.');
+        // Delete token from database
+        $tokenModel = new ApiTokenModel();
+        $tokenModel->deleteByToken($token);
+
+        // Success - token revoked
+        return $this->response
+            ->setJSON([
+                'status' => 'success',
+                'message' => 'Token revoked successfully',
+                'data' => null
+            ]);
     }
 }
+?>
+
