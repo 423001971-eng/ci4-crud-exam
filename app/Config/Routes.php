@@ -13,6 +13,8 @@ $routes->post('register/store', 'AuthController::registerSave');
 $routes->get('logout', 'AuthController::logout');
 $routes->get('unauthorized', 'AuthController::unauthorized');
 
+$routes->post('api/login', '\App\Controllers\Api\AuthController::login');
+
 // --- EVERYONE (Auth passes, they see it) ---
 $routes->group('', ['filter' => ['auth']], function ($routes) {
     $routes->get('dashboard',                  'Home::index');

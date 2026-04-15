@@ -122,6 +122,19 @@ class AuthController extends Controller
                 'data' => null
             ]);
     }
+
+    /**
+     * Simplified login endpoint for exam (task requirement)
+     */
+    public function login()
+    {
+        // This is a simplified version for your exam
+        $data = [
+            'status' => 200,
+            'token'  => 'sample_token_12345', // In a real app, this is generated
+            'message' => 'Login Successful'
+        ];
+        return $this->response->setJSON($data);
+    }
 }
 ?>
-

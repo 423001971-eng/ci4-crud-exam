@@ -1,0 +1,5 @@
+[33mea7ffba[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mCi4-Midtask[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/blackboxai/ci4-midterm-task[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;31morigin/Ci4-Midtask[m[33m, [m[1;32mmain[m[33m, [m[1;32mblackboxai/ci4-midterm-task[m[33m)[m Merge pull request #5 from 423001971-eng/ci4-midterm
+[33mc083a2c[m Delete TODO.md
+[33m7f6f0ca[m[33m ([m[1;31morigin/ci4-midterm[m[33m, [m[1;31morigin/blackboxai/ci4-linter-fix-v2[m[33m, [m[1;31morigin/CI4-API-MIDTERM-TERMINAL-EXAM[m[33m, [m[1;32mci4-midterm[m[33m, [m[1;32mblackboxai/final-api-linter-fix[m[33m, [m[1;32mCI4-API-MIDTERM-TERMINAL-EXAM[m[33m)[m docs: remove project plan
+[33mb3fe14c[m Merge pull request #3 from 423001971-eng/fix-errors
+[33md2b7819[m fix(api): Replace invalid RequestInterface::getVar/setGlobal with setAttribute/getAttribute
