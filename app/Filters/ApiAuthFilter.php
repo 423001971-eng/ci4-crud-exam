@@ -57,7 +57,7 @@ class ApiAuthFilter implements FilterInterface
         }
 
         // Attach user data to request globals so controllers can read it
-        $request->setGlobal('apiUser', $row);
+$request->setAttribute('apiUser', $row);
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)

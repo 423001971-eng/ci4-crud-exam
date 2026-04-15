@@ -25,7 +25,7 @@ class BaseApiController extends BaseResource
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger): void
     {
         parent::initController($request, $response, $logger);
-$this->apiUser = $request->getVar('apiUser') ?? null;
+$this->apiUser = $request->getAttribute('apiUser') ?? null;
     }
 
     /**
