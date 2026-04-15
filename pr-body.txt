@@ -1,0 +1,19 @@
+feat(api): add POST /api/login endpoint
+
+Implements task requirements:
+
+- Route added: $routes->post('api/login', '\App\Controllers\Api\AuthController::login')
+- Controller method: login() returns JSON:
+  {
+    "status": 200,
+    "token": "sample_token_12345",
+    "message": "Login Successful"
+  }
+
+Test:
+POST http://localhost/ci4-crud-exam/public/api/login
+
+Verified:
+- php spark routes shows route
+- Endpoint returns expected response
+- PHP lint clean
