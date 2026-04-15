@@ -2,74 +2,67 @@
 
 namespace App\Controllers\Api;
 
+use CodeIgniter\Controller;
 use App\Models\UserModel;
+use CodeIgniter\HTTP\ResponseInterface;
 
 /**
- * API Students Controller
- *
- * GET  /api/v1/students        → paginated list of students
- * GET  /api/v1/students/{id}   → single student profile
- *
- * Requires: Bearer token (teacher or admin role)
+ * Simple Students API Controller
+ * 
+ * GET /api/v1/students - List all students
+ * GET /api/v1/students/{id} - Get one student
+ * 
+ * Protected by api_auth filter. Simple version!
+ * Returns users where role = 'student'
  */
-class StudentsController extends BaseApiController
+
+class StudentsController extends Controller
 {
-    private UserModel $userModel;
+    /**
+     * Get list of all students
+     */
+    public function index(): ResponseInterface
+    {
+        // Use UserModel to get students (already filters role='student')
+        $userModel = new UserModel();
+        $students = $userModel->getStudents();
 
-    public function initController(
-        \CodeIgniter\HTTP\RequestInterface $request,
-        \CodeIgniter\HTTP\ResponseInterface $response,
-        \Psr\Log\LoggerInterface $logger
-    ): void {
-        parent::initController($request, $response, $logger);
-        $this->userModel = new UserModel();
+        // Simple success response
+        return $this->response
+            ->setJSON([
+                'status' => 'success',
+                'message' => 'Students list retrieved',
+                'data' => $students  // Model already sanitizes password etc.
+            ]);
     }
 
-    // ── GET /api/v1/students ──────────────────────────────────────────────────
-
-    public function index()
+    /**
+     * Get single student by ID
+     */
+    public function show(int $id): ResponseInterface
     {
-        if (! $this->hasTeacherAccess()) {
-            return $this->forbidden('Only teachers and admins can list students.');
+        // Get student by ID (filters role='student')
+        $userModel = new UserModel();
+        $student = $userModel->getStudentById($id);
+
+        if (!$student) {
+            return $this->response
+                ->setStatusCode(404)
+                ->setJSON([
+                    'status' => 'error',
+                    'message' => 'Student not found',
+                    'data' => null
+                ]);
         }
 
-        $students = $this->userModel->getStudents();
-
-        // Remove password hashes from output
-        $students = array_map([$this, 'sanitize'], $students);
-
-        return $this->ok($students);
-    }
-
-    // ── GET /api/v1/students/{id} ─────────────────────────────────────────────
-
-    public function show(int $id)
-    {
-        if (! $this->hasTeacherAccess()) {
-            return $this->forbidden('Only teachers and admins can view student profiles.');
-        }
-
-        $student = $this->userModel->getStudentById($id);
-
-        if (! $student) {
-            return $this->notFound("Student #{$id} not found.");
-        }
-
-        return $this->ok($this->sanitize($student));
-    }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-    /** Allow teachers and admins; block students from the API list. */
-    private function hasTeacherAccess(): bool
-    {
-        return $this->apiUser && in_array($this->apiUser['role_name'], ['teacher', 'admin'], true);
-    }
-
-    /** Strip sensitive fields before sending to client. */
-    private function sanitize(array $row): array
-    {
-        unset($row['password'], $row['deleted_at']);
-        return $row;
+        // Success response
+        return $this->response
+            ->setJSON([
+                'status' => 'success',
+                'message' => 'Student retrieved',
+                'data' => $student
+            ]);
     }
 }
+?>
+
